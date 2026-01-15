@@ -289,44 +289,48 @@ export default function Home() {
     })();
   }, []);
 
-  return (
-    <main className="min-h-screen p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Face Emotion (OpenCV + YOLO11-CLS)</h1>
+  return ( 
 
-      <div className="space-y-2">
-        <div className="text-sm">สถานะ: {status}</div>
-        <div className="text-sm">
-          Emotion: <b>{emotion}</b> | Conf: <b>{(conf * 100).toFixed(1)}%</b>
+    <div className="bg">
+      <main className="min-h-screen p-6 space-y-4">
+        <h1 className="text-2xl font-bold blue-text">Face Emotion (OpenCV + YOLO11-CLS)</h1>
+
+        <div className="space-y-2">
+          <div className="text-sm blue-text">สถานะ: {status}</div>
+          <div className="text-sm blue-text">
+            Emotion: <b>{emotion}</b> | Conf: <b>{(conf * 100).toFixed(1)}%</b>
+          </div>
         </div>
-      </div>
 
-      <div className="flex gap-3">
-        <button
-          className="px-4 py-2 rounded bg-black text-white"
-          onClick={startCamera}
-        >
-          Start Camera
-        </button>
-      </div>
+        <div className="flex gap-3">
+          <button
+            className="px-4 py-2 rounded bg-black text-white"
+            onClick={startCamera}
+          >
+            Start Camera
+          </button>
+        </div>
 
-      <div className="relative w-full flex gap-4 items-start">
+        <div className="relative w-full flex gap-4 items-start">
 
-        <video ref={videoRef} className="hidden" playsInline />
-        <canvas ref={canvasRef} className="flex-1 rounded border"style={{ height: "600px" }}/>
-          
-          {memeUrl && ( 
-            <div className="flex-1 flex items-center justify-center rounded border bg-black"style={{height: "600px"}}>
-              <img 
-              src={memeUrl} 
-              alt="Emotion Meme" 
-              className="h-full object-contain" /> 
-            </div>
-          )}
-      </div>
+          <video ref={videoRef} className="hidden" playsInline />
+          <canvas ref={canvasRef} className="flex-1 rounded border"style={{ height: "600px" }}/>
+            
+            {memeUrl && ( 
+              <div className="flex-1 flex items-center justify-center rounded border bg-black"style={{height: "600px"}}>
+                <img 
+                src={memeUrl} 
+                alt="Emotion Meme" 
+                className="h-full object-contain" /> 
+              </div>
+            )}
+        </div>
 
-      <p className="text-sm text-gray-600">
-        หมายเหตุ: ต้องกดปุ่ม Start เพื่อขอสิทธิ์เปิดกล้อง
-      </p>
-    </main>
+        <p className="text-sm text-gray-600">
+          หมายเหตุ: ต้องกดปุ่ม Start เพื่อขอสิทธิ์เปิดกล้อง
+        </p>
+      </main>
+    </div>
+    
   );
 }
