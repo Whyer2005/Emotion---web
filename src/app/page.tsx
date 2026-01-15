@@ -1,70 +1,3 @@
-// import Image from "next/image";
-
-// export default function Home() {
-//   return (
-//     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-//       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-//         <Image
-//           className="dark:invert"
-//           src="/next.svg"
-//           alt="Next.js logo"
-//           width={100}
-//           height={20}
-//           priority
-//         />
-//         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-//           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-//             To get started, edit the page.tsx file.
-//           </h1>
-//           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-//             Looking for a starting point or more instructions? Head over to{" "}
-//             <a
-//               href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//               className="font-medium text-zinc-950 dark:text-zinc-50"
-//             >
-//               Templates
-//             </a>{" "}
-//             or the{" "}
-//             <a
-//               href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//               className="font-medium text-zinc-950 dark:text-zinc-50"
-//             >
-//               Learning
-//             </a>{" "}
-//             center.
-//           </p>
-//         </div>
-//         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-//           <a
-//             className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-//             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             <Image
-//               className="dark:invert"
-//               src="/vercel.svg"
-//               alt="Vercel logomark"
-//               width={16}
-//               height={16}
-//             />
-//             Deploy Now
-//           </a>
-//           <a
-//             className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-//             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             Documentation
-//           </a>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -76,6 +9,19 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [memeUrl, setMemeUrl] = useState<string | null>(null);
+
+  const memeMap: Record<string, string> = {
+    angry: "/memes/angry.png",
+    disgust: "/memes/disgust.png",
+    fear: "/memes/fear.png",
+    happy: "/memes/happy.png",
+    neutral: "/memes/neutral.png",
+    sad: "/memes/sad.png",
+    surprise: "/memes/surprise.png",
+  };
+
+
   const [status, setStatus] = useState<string>("ยังไม่เริ่ม");
   const [emotion, setEmotion] = useState<string>("-");
   const [conf, setConf] = useState<number>(0);
@@ -85,31 +31,7 @@ export default function Home() {
   const sessionRef = useRef<ort.InferenceSession | null>(null);
   const classesRef = useRef<string[] | null>(null);
 
-  // Load OpenCV.js
-  // async function loadOpenCV() {
-  //   if (typeof window === "undefined") return;
 
-  //   if ((window as any).cv) {
-  //     cvRef.current = (window as any).cv;
-  //     return;
-  //   }
-
-  //   await new Promise<void>((resolve, reject) => {
-  //     const script = document.createElement("script");
-  //     script.src = "/opencv/opencv.js";
-  //     script.async = true;
-  //     script.onload = () => {
-  //       const cv = (window as any).cv;
-  //       if (!cv) return reject(new Error("OpenCV โหลดไม่สำเร็จ"));
-  //       cv["onRuntimeInitialized"] = () => {
-  //         cvRef.current = cv;
-  //         resolve();
-  //       };
-  //     };
-  //     script.onerror = () => reject(new Error("โหลด opencv.js ไม่สำเร็จ"));
-  //     document.body.appendChild(script);
-  //   });
-  // }
   async function loadOpenCV() {
   if (typeof window === "undefined") return;
 
@@ -319,8 +241,11 @@ export default function Home() {
           if (probs[i] > probs[maxIdx]) maxIdx = i;
         }
 
+        const detectedEmotion = classes[maxIdx] ?? `class_${maxIdx}`;
         setEmotion(classes[maxIdx] ?? `class_${maxIdx}`);
         setConf(probs[maxIdx] ?? 0);
+
+        setMemeUrl(memeMap[detectedEmotion] ?? null);
 
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(bestRect.x, Math.max(0, bestRect.y - 28), 220, 28);
@@ -384,12 +309,19 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="relative w-full max-w-3xl">
+      <div className="relative w-full flex gap-4 items-start">
+
         <video ref={videoRef} className="hidden" playsInline />
-        <canvas
-          ref={canvasRef}
-          className="w-full rounded border"
-        />
+        <canvas ref={canvasRef} className="flex-1 rounded border"style={{ height: "600px" }}/>
+          
+          {memeUrl && ( 
+            <div className="flex-1 flex items-center justify-center rounded border bg-black"style={{height: "600px"}}>
+              <img 
+              src={memeUrl} 
+              alt="Emotion Meme" 
+              className="h-full object-contain" /> 
+            </div>
+          )}
       </div>
 
       <p className="text-sm text-gray-600">
